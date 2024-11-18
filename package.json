@@ -1,0 +1,23 @@
+{
+  "name": "networking-weathermap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZaptoInc/networking-weathermap.git"
+  },
+  "author": "Zapto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZaptoInc/networking-weathermap/issues"
+  },
+  "homepage": "https://github.com/ZaptoInc/networking-weathermap#readme",
+  "dependencies": {
+    "express": "^4.21.1",
+    "node-fetch": "^2.7.0"
+  }
+}
