@@ -6,7 +6,7 @@ app.use(express.json());
 const config = require("./config.json");
 
 const PORT = process.env.PORT || config.port || 3001;
-const interval = process.env.INTERVAL || config.interval || 1
+const interval = process.env.INTERVAL || config.interval || 1;
 
 let nodes = {};
 
@@ -42,7 +42,9 @@ for (let i = 0; i < config.nodes.length; i++) {
   nodes[node.id].stats = {};
 }
 
-let nodeChecker = setInterval(async () => {
+let nodeChecker = setInterval(nodeCheckerFunc, interval * 1000);
+
+async function nodeCheckerFunc(params) {
   Object.values(nodes).forEach((node) => {
     switch (node.type) {
       case "mikrotik":
@@ -53,7 +55,11 @@ let nodeChecker = setInterval(async () => {
         break;
     }
   });
-}, interval * 1000);
+}
+
+nodeCheckerFunc();
+
+setTimeout(nodeCheckerFunc, 1000);
 
 async function mikrotikAPI(node) {
   try {
@@ -75,23 +81,43 @@ async function mikrotikAPI(node) {
       for (let i = 0; i < node.caching.previous.data.length; i++) {
         const interface_latest = node.caching.latest.data[i];
         const interface_previous = node.caching.previous.data[i];
-        const node_interval = node.caching.latest.timestamp - node.caching.previous.timestamp
+        const node_interval =
+          node.caching.latest.timestamp - node.caching.previous.timestamp;
         node.stats[interface_latest[".id"]] = {
           id: interface_latest[".id"],
-          interval:
-          node_interval,
-          "rx-byte":
-            Math.ceil((interface_latest["rx-byte"] - interface_previous["rx-byte"]) / node_interval * 1000),
-          "rx-packet":
-          Math.ceil((interface_latest["rx-packet"] - interface_previous["rx-packet"]) / node_interval * 1000),
-          "rx-bits":
-          Math.ceil(((interface_latest["rx-byte"] - interface_previous["rx-byte"]) / node_interval * 1000) * 8),
-          "tx-byte":
-          Math.ceil((interface_latest["tx-byte"] - interface_previous["tx-byte"])/ node_interval * 1000),
-          "tx-packet":
-          Math.ceil((interface_latest["tx-packet"] - interface_previous["tx-packet"]) / node_interval * 1000),
-          "tx-bits":
-          Math.ceil(((interface_latest["tx-byte"] - interface_previous["tx-byte"]) / node_interval * 1000) * 8),
+          interval: node_interval,
+          "rx-byte": Math.ceil(
+            ((interface_latest["rx-byte"] - interface_previous["rx-byte"]) /
+              node_interval) *
+              1000
+          ),
+          "rx-packet": Math.ceil(
+            ((interface_latest["rx-packet"] - interface_previous["rx-packet"]) /
+              node_interval) *
+              1000
+          ),
+          "rx-bits": Math.ceil(
+            ((interface_latest["rx-byte"] - interface_previous["rx-byte"]) /
+              node_interval) *
+              1000 *
+              8
+          ),
+          "tx-byte": Math.ceil(
+            ((interface_latest["tx-byte"] - interface_previous["tx-byte"]) /
+              node_interval) *
+              1000
+          ),
+          "tx-packet": Math.ceil(
+            ((interface_latest["tx-packet"] - interface_previous["tx-packet"]) /
+              node_interval) *
+              1000
+          ),
+          "tx-bits": Math.ceil(
+            ((interface_latest["tx-byte"] - interface_previous["tx-byte"]) /
+              node_interval) *
+              1000 *
+              8
+          ),
         };
       }
     }
